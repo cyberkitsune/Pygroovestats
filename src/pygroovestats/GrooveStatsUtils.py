@@ -7,6 +7,7 @@ class GSScoreEntry:
     chart_id: int
     game_id: int
     user_id: int
+    user_name: str
     difficulty: str
     level: str
     play_mode: str

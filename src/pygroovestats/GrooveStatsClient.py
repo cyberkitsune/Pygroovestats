@@ -28,8 +28,15 @@ class GrooveStatsClient(object):
         page = self.__get_page('profile', {'id': userid})
         soup = BeautifulSoup(page, 'html5lib')
 
+        user_name = ''
+        bio_heads = soup.find_all(class_="bio_head")
+        for head in bio_heads:
+            if head.text == "User Name:":
+                user_name = head.next_sibiling
+
         table = soup.find(id='ranking_scores', class_='bio_recent_scores').find_all('tr')
         rows = []
+
         for row in table:
             cols = row.find_all('td')
             if (len(cols)) != 4:
@@ -52,7 +59,7 @@ class GrooveStatsClient(object):
             si = GSScoreEntry(song_name=first_col_items[0].text, chart_id=chart_id, game_id=game_id, difficulty=diff,
                               level=level, play_mode=mode,
                               score=float(cols[1].text), date_submitted=cols[3].text, user_id=userid,
-                              is_gslaunch=is_gslaunch)
+                              is_gslaunch=is_gslaunch, user_name=user_name)
 
             rows.append(si)
 
@@ -100,7 +107,7 @@ class GrooveStatsClient(object):
             si = GSScoreEntry(song_name=song_name, chart_id=chartid, game_id=gameid, difficulty=diff, level=level,
                               play_mode=mode,
                               score=float(cols[2].text), date_submitted=cols[5].text, user_id=int(userid),
-                              is_gslaunch=is_gslaunch, comment=cmt_text)
+                              is_gslaunch=is_gslaunch, comment=cmt_text, user_name=cols[1].text)
 
             rows.append(si)
 
