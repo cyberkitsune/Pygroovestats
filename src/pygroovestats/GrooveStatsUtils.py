@@ -42,6 +42,7 @@ class GSJudgeInfo:
     miss: int
     boysoff: bool = False
     cmod: str = None
+    rate: str = None
 
 
 # Example: 1552e, 521g, 23d, 65wo, 170m, C1140
@@ -59,33 +60,42 @@ def parse_score_judges(score, total_notes):
     miss = 0
     boysoff = False
     cmod = None
+    rate = None
 
     # FIXME This feels bad and maybe I should be using regex
     split = score.comment.split(", ")
     for element in split:
         if 'Rate' in element:
+            rate = element
             continue
 
         if 'e' in element:
             excellent = int(element.strip().strip('e'))
+            continue
 
         if 'g' in element:
             great = int(element.strip().strip('g'))
+            continue
 
         if 'd' in element:
             decent = int(element.strip().strip('d'))
+            continue
 
         if 'wo' in element:
             wayoff = int(element.strip().strip('wo'))
+            continue
 
         if 'm' in element:
             miss = int(element.strip().strip('m'))
+            continue
 
         if 'C' in element:
             cmod = element
+            continue
 
         if 'No Dec/WO' in element:
             boysoff = True
+            continue
 
     if boysoff:
         fantastic = total_notes - excellent - great - miss
@@ -93,7 +103,7 @@ def parse_score_judges(score, total_notes):
         fantastic = total_notes - excellent - great - decent - wayoff - miss
 
     return GSJudgeInfo(fantastic=fantastic, excellent=excellent, great=great, decent=decent, wayoff=wayoff,
-                        miss=miss, boysoff=boysoff, cmod=cmod)
+                        miss=miss, boysoff=boysoff, cmod=cmod, rate=rate)
 
 
 
