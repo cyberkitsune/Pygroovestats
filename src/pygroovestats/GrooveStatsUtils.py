@@ -64,19 +64,19 @@ def parse_score_judges(score, total_notes):
     split = score.comment.split(", ")
     for element in split:
         if 'e' in element:
-            excellent = int(element.strip('e'))
+            excellent = int(element.strip('e').strip())
 
         if 'g' in element:
-            great = int(element.strip('g'))
+            great = int(element.strip('g').strip())
 
         if 'd' in element:
-            decent = int(element.strip('d'))
+            decent = int(element.strip('d').strip())
 
         if 'wo' in element:
-            wayoff = int(element.strip('wo'))
+            wayoff = int(element.strip('wo').strip())
 
         if 'm' in element:
-            miss = int(element.strip('m'))
+            miss = int(element.strip('m').strip())
 
         if 'C' in element:
             cmod = element
