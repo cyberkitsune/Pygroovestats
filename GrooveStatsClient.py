@@ -1,43 +1,6 @@
 import requests, dataclasses, urllib.parse
 from bs4 import BeautifulSoup
-
-
-@dataclasses.dataclass
-class GSScoreEntry:
-    song_name: str
-    chart_id: int
-    game_id: int
-    user_id: int
-    difficulty: str
-    level: str
-    play_mode: str
-    score: float
-    date_submitted: str
-    is_gslaunch: bool
-    comment: str = None
-
-
-def diff_to_id(diff):
-    if diff == "Easy":
-        return 4
-    elif diff == "Medium":
-        return 3
-    elif diff == 'Hard':
-        return 2
-    elif diff == 'Expert':
-        return 1
-
-    return 1
-
-
-def id_to_diff(did):
-    diffs = ["Expert", "Hard", "Medium", "Easy"]
-    return diffs[did - 1]
-
-
-def id_to_mode(mid):
-    modes = ['Sgl', 'Dbl']
-    return modes[mid - 1]
+from GrooveStatsUtils import GSScoreEntry, GSSongInfo, id_to_mode, id_to_diff, diff_to_id
 
 
 class NoGSDetailException(Exception):
@@ -86,8 +49,10 @@ class GrooveStatsClient(object):
             if img_tag is not None:
                 if 'autoverify' in img_tag.get('src'):
                     is_gslaunch = True
-            si = GSScoreEntry(song_name=first_col_items[0].text, chart_id=chart_id, game_id=game_id, difficulty=diff, level=level, play_mode=mode,
-                              score=float(cols[1].text), date_submitted=cols[3].text, user_id=userid, is_gslaunch=is_gslaunch)
+            si = GSScoreEntry(song_name=first_col_items[0].text, chart_id=chart_id, game_id=game_id, difficulty=diff,
+                              level=level, play_mode=mode,
+                              score=float(cols[1].text), date_submitted=cols[3].text, user_id=userid,
+                              is_gslaunch=is_gslaunch)
 
             rows.append(si)
 
@@ -126,12 +91,69 @@ class GrooveStatsClient(object):
             if img_tag is not None:
                 if 'autoverify' in img_tag.get('src'):
                     is_gslaunch = True
-            si = GSScoreEntry(song_name=song_name, chart_id=chartid, game_id=gameid, difficulty=diff, level=level, play_mode=mode,
-                              score=float(cols[2].text), date_submitted=cols[5].text, user_id=int(userid), is_gslaunch=is_gslaunch, comment=cols[3].text)
+            cmt_text = None
+            acro = cols[3].find('acronym')
+            if acro is not None:
+                cmt_text = acro.get('title')
+            else:
+                cmt_text = cols[3].text
+            si = GSScoreEntry(song_name=song_name, chart_id=chartid, game_id=gameid, difficulty=diff, level=level,
+                              play_mode=mode,
+                              score=float(cols[2].text), date_submitted=cols[5].text, user_id=int(userid),
+                              is_gslaunch=is_gslaunch, comment=cmt_text)
 
             rows.append(si)
 
         return rows
+
+    def song_info(self, chartid, gameid, modeid, typeid=1):
+        page = self.__get_page('songscores', {'chartid': chartid, 'gameid': gameid, 'modeid': modeid, 'typeid': typeid})
+        soup = BeautifulSoup(page, 'html5lib')
+
+        song_name = soup.find(class_="ranking_head").text
+        song_artist = ''
+        song_pack = ''
+        song_difficulty = ''
+        song_level = 0
+        song_steps = 0
+        song_holds = 0
+        song_mines = 0
+        song_jumps = 0
+        song_rolls = 0
+        cover_url = ''
+
+        # First, get song data
+        sdata = soup.find(id="ranking_options", class_="scores_detail_summary").find_all('tr')
+        for row in sdata:
+            cols = row.find_all('td')
+            text = cols[0].text
+            if text == "Artist:":
+                song_artist = cols[1].text
+            if text == "Mode:":
+                song_difficulty = cols[1].text
+            if text == "Pack:":
+                song_pack = cols[1].text
+            if text == "Difficulty:":
+                song_level = int(cols[1].text)
+            if text == "Jumps:":
+                song_jumps = int(cols[1].text)
+            if text == "Holds:":
+                song_holds = int(cols[1].text)
+            if text == "Mines:":
+                song_mines = int(cols[1].text)
+            if text == "Rolls:":
+                song_rolls = int(cols[1].text)
+            if text == "Steps:":
+                song_steps = int(cols[1].text)
+
+        cover = soup.find(id="ranking_options", class_="scores_detail_banner").find('img')
+        if cover is not None:
+            cover_url = cover.get('src')
+
+        return GSSongInfo(song_name=song_name, song_artist=song_artist, song_pack=song_pack,
+                          song_difficulty=song_difficulty, song_level=song_level, song_steps=song_steps,
+                          song_holds=song_holds, song_mines=song_mines, song_jumps=song_jumps, song_rolls=song_rolls,
+                          cover_url=cover_url)
 
     def get_detailed_for(self, scoreentry):
         if not isinstance(scoreentry, GSScoreEntry):
