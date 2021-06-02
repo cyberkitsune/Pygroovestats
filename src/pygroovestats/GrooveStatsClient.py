@@ -1,6 +1,6 @@
 import requests, dataclasses, urllib.parse
 from bs4 import BeautifulSoup
-from GrooveStatsUtils import GSScoreEntry, GSSongInfo, id_to_mode, id_to_diff, diff_to_id
+from .GrooveStatsUtils import GSScoreEntry, GSSongInfo, id_to_mode, id_to_diff, diff_to_id
 
 
 class NoGSDetailException(Exception):
