@@ -1,4 +1,4 @@
-import sys
+import sys, urllib.parse
 from pygroovestats.GrooveStatsUtils import diff_to_id, parse_score_judges
 from pygroovestats.GrooveStatsClient import GrooveStatsClient
 
@@ -11,6 +11,8 @@ def main():
     detailed = gsc.get_detailed_for(most_recent)
     print(detailed)
     song_info = gsc.song_info(detailed.chart_id, detailed.game_id, diff_to_id(detailed.difficulty))
+    print(song_info)
+    print("https://assets.cyberkitsune.net/gstats_proxy/%s" % urllib.parse.quote(song_info.cover_url))
     print(parse_score_judges(detailed, song_info.song_steps + song_info.song_holds + song_info.song_rolls + (song_info.song_jumps)))
 
 

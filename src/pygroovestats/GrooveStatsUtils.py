@@ -63,6 +63,9 @@ def parse_score_judges(score, total_notes):
     # FIXME This feels bad and maybe I should be using regex
     split = score.comment.split(", ")
     for element in split:
+        if 'Rate' in element:
+            continue
+
         if 'e' in element:
             excellent = int(element.strip().strip('e'))
 
