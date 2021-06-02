@@ -65,6 +65,10 @@ def parse_score_judges(score, total_notes):
     # FIXME This feels bad and maybe I should be using regex
     split = score.comment.split(", ")
     for element in split:
+        if 'No Dec/WO' in element:
+            boysoff = True
+            continue
+
         if 'Rate' in element:
             rate = element
             continue
@@ -93,9 +97,6 @@ def parse_score_judges(score, total_notes):
             cmod = element
             continue
 
-        if 'No Dec/WO' in element:
-            boysoff = True
-            continue
 
     if boysoff:
         fantastic = total_notes - excellent - great - miss
