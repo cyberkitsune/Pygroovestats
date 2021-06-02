@@ -29,10 +29,10 @@ class GrooveStatsClient(object):
         soup = BeautifulSoup(page, 'html5lib')
 
         user_name = ''
-        bio_heads = soup.find_all(class_="bio_head")
+        bio_heads = soup.find_all('span', class_="bio_head")
         for head in bio_heads:
             if head.text == "User Name:":
-                user_name = head.next_sibiling
+                user_name = head.next_sibling.strip()
 
         table = soup.find(id='ranking_scores', class_='bio_recent_scores').find_all('tr')
         rows = []
