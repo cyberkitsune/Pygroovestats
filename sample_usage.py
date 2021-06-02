@@ -1,10 +1,11 @@
-from GrooveStatsClient import GrooveStatsClient
-from GrooveStatsUtils import diff_to_id, parse_score_judges
+import pygroovestats, sys
+from pygroovestats.GrooveStatsUtils import diff_to_id, parse_score_judges
+from pygroovestats.GrooveStatsClient import GrooveStatsClient
 
 
 def main():
     gsc = GrooveStatsClient()
-    recent = gsc.get_recent(66782)
+    recent = gsc.get_recent(sys.argv[1])
     print(recent)
     most_recent = recent[0]
     detailed = gsc.get_detailed_for(most_recent)
